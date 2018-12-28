@@ -685,6 +685,8 @@ int check_if_contains_semicolon(char *cbuf) {
 void *check_connectivity(void *args) {
 	client **cli = (client**) args;	
 	int socket_ID = (*cli) -> socket_ID;
+	char name[30];
+	strcpy((*cli) -> name, name);
 	client *cl = NULL;
 	int disconnected_time = 0;
 	while(1) {
@@ -694,6 +696,8 @@ void *check_connectivity(void *args) {
 			printf("Client with socket ID %d is null, deleting thread\n", socket_ID);	
 			break;
 		}
+		if (strcmp(name, cl -> name) != 0) break;
+
 		printf("Client with socket ID %d connected: %d\n", socket_ID, cl -> connected);
 		if (cl -> connected == 1) {
 			set_connected(&cl, 0);
