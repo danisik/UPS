@@ -53,9 +53,19 @@ Jazyk použitý pro klienta: Java. Vybraná hra je \textbf{Dáma} .
 \label{fig:draughts_example}
 \end {figure}
 
+\newpage
 %% SECTION %%
 \section{Programátorská dokumentace}
 \label{Programátorská dokumentace}
+%% SUBSECTION %%
+\subsection{Stavový automat}
+\begin {figure}[h]
+\centering
+\includegraphics[width=6cm]{img/automat}
+\caption{Stavový automat}
+\label{fig:automat}
+\end {figure}
+\newpage
 %% SUBSECTION %%
 \subsection{Server}
 \label{Server}
@@ -72,6 +82,9 @@ Server používá pro svůj běh tyto datové struktury:
 	\item (int) socket\_ID - Socket ID hráče získané při připojení na server
 	\item (char*) color - Barva hráče, kterou mu server přiřadí při spuštění hry
 	\item (STATES) state - Stav, ve kterém se hráč nachází
+	\item (pthread\_t) client\_thread - vlákno pro kontrolu zda klient je připojený
+	\item (int) connected - číslo značící zda je klient připojený nebo ne
+	\item (int) disconnected\_time - čas uběhnutý, když je klient odpojený (v sekundách) 
 	\end{itemize}
 \item clients - Struktura pro uložení všech klientů do pole
 	\begin{itemize}
@@ -123,6 +136,7 @@ Server používá pro svůj běh tyto datové struktury:
 	\item (int) server\_running\_minutes - Čas běhu serveru (v minutách)
 	\end{itemize}	 
 \end{itemize}
+\newpage
 %% SUBSUBSECTION %%
 \subsubsection{Formáty zpráv}
 \label{Server_Formáty_zpráv}
@@ -160,6 +174,10 @@ Server používá pro svůj běh tyto datové struktury:
 \textit{connection\_restored;}  & Oponent se vrátil do hry                     \\ 
 \hline
 \textit{promote;dp\_row;dp\_col;}  & Vylepšení figurky muže na krále                     \\ 
+\hline
+\textit{is\_connected;}  & Kontrola připojení hráče                     \\ 
+\hline
+\textit{already\_wanna\_play;}  & \begin{tabular}[c]{@{}l@{}} Hráč po odpojení se připojí a dostane informaci\\ o tom, že před odpojením se snažil najít hru\end{tabular}                   \\ 
 \hline
 \begin{tabular}[c]{@{}l@{}}
 \textit{board;name;player\_color;game\_ID;}\\\textit{count\_pieces;who\_play;piece\_x;piece\_y;}\\\textit{piece\_color;piece\_type;....;}  \end{tabular}& Aktuální hrací plocha hry                    \\
@@ -222,6 +240,8 @@ Klient obsahuje tyto balíčky s třídami:
 \hline
 \textit{new\_game\_no;} & Uživatel nechce hrát novou hru  \\
 \hline
+\textit{is\_connected;}  & Kontrola připojení hráče                     \\ 
+\hline
 \end{tabular}
 \end{table}
 \large{\textbf{Legenda}}
@@ -260,7 +280,7 @@ Kontrola příchozích dat: Server po přijmutí dat je zkontroluje, zda obsahuj
 \newline
 Jakmile na server přijdou validní data (ve správném formátu, lze rozdělit text na několik částí pomocí znaku \textit{;}), server zkontroluje první část dat, zda obsahuje jedno z klíčových slov viz \ref{Server_Formáty_zpráv}. Pokud ano, tak server dále kontroluje stav klienta ve kterém se nachází a zda tuto instrukci může provést (př. Klient je v rozehrané hře a pošle zprávu, která má klienta přihlásit. Bez patřičných ošetření se klient znovu přihlásí i přes to, že už se jednou přihlašoval.). Pokud je klient ve stavu, který neumožňuje vykonat zadanou instrukci, tak zprávu označíme za nevalidní a dále s ní nepracujeme. Tento způsob je aplikován i na straně klienta.
 \newline
-Ztráta spojení: Pokud klient ztratí spojení ser serverem (metoda \textbf{recv()} vrátí hodnotu 0), přejde do stavu \textit{disconnect} a spustí se časovač, který je nastavený na \textbf{5 minut}. Pokud se do té doby klient pod stejným jménem přihlásí, bude vpuštěn do rozehrané hry, ve které byl před tím, než ztratil spojení. Server tomuto klientovy odešle ID hry, počet figurek a jejich pozice, barvu a typ, aby se klient mohl ihned zapojit do hry.
+Ztráta spojení: Pokud klient ztratí spojení ser serverem (klientovo vlákno nepřijme zprávu \textit{is\_connected}), přejde do stavu \textit{disconnect}. Každých \textbf{15 sekund} se server bude snažit spojit s klientem. Pokud se do \textbf{2 minut} klient pod stejným jménem přihlásí, bude vpuštěn do rozehrané hry, ve které byl před tím, než ztratil spojení. Server tomuto klientovy odešle ID hry, počet figurek a jejich pozice, barvu a typ, aby se klient mohl ihned zapojit do hry.
 \newline
 Jestliže se klient do 5 minut nepřipojí (pomocí návratové hodnoty metody \textbf{select()}, která je rovna 0 v případě timeoutu), server ho vymaže z pole připojených hráčů, případně ukončí rozehranou hru, jestliže se klient nacházel uprostřed rozehrané hry a uvolní klientovo dříve zadané jméno. 
 %% SECTION %%
