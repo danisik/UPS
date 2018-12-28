@@ -67,7 +67,6 @@ public class Reader implements Runnable {
 		try {
 			reader.close();
 		} catch (IOException e) {
-			//e.printStackTrace();
 		}
 	}
 
@@ -75,6 +74,9 @@ public class Reader implements Runnable {
 		String[] values = stringMessage.split(";");
 		Messages messages = Messages.getMessageByName(values[0]);
 		switch(messages) {
+			case SERVER_IS_CONNECTED:
+				connection.write(new Client_Is_Connected());
+				break;
 			case SERVER_LOGIN_OK:
 				if (mainWindow.getClient().getState() == States.LOGGING) {
 					Platform.runLater(() -> {
@@ -234,6 +236,11 @@ public class Reader implements Runnable {
 						mainWindow.opponent_connection_restored();
 					});
 				}
+				break;
+			case SERVER_ALREADY_WANNA_PLAY: 
+				Platform.runLater(() -> {
+					mainWindow.already_wanna_play();
+				});
 				break;
 			default: 
 				break;
