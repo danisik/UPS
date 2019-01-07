@@ -280,9 +280,7 @@ Kontrola příchozích dat: Server po přijmutí dat je zkontroluje, zda obsahuj
 \newline
 Jakmile na server přijdou validní data (ve správném formátu, lze rozdělit text na několik částí pomocí znaku \textit{;}), server zkontroluje první část dat, zda obsahuje jedno z klíčových slov viz \ref{Server_Formáty_zpráv}. Pokud ano, tak server dále kontroluje stav klienta ve kterém se nachází a zda tuto instrukci může provést (př. Klient je v rozehrané hře a pošle zprávu, která má klienta přihlásit. Bez patřičných ošetření se klient znovu přihlásí i přes to, že už se jednou přihlašoval.). Pokud je klient ve stavu, který neumožňuje vykonat zadanou instrukci, tak zprávu označíme za nevalidní a dále s ní nepracujeme. Tento způsob je aplikován i na straně klienta.
 \newline
-Ztráta spojení: Pokud klient ztratí spojení ser serverem (klientovo vlákno nepřijme zprávu \textit{is\_connected}), přejde do stavu \textit{disconnect}. Každých \textbf{15 sekund} se server bude snažit spojit s klientem. Pokud se do \textbf{2 minut} klient pod stejným jménem přihlásí, bude vpuštěn do rozehrané hry, ve které byl před tím, než ztratil spojení. Server tomuto klientovy odešle ID hry, počet figurek a jejich pozice, barvu a typ, aby se klient mohl ihned zapojit do hry.
-\newline
-Jestliže se klient do 5 minut nepřipojí (pomocí návratové hodnoty metody \textbf{select()}, která je rovna 0 v případě timeoutu), server ho vymaže z pole připojených hráčů, případně ukončí rozehranou hru, jestliže se klient nacházel uprostřed rozehrané hry a uvolní klientovo dříve zadané jméno. 
+Ztráta spojení: Pokud klient ztratí spojení ser serverem (klientovo vlákno nepřijme zprávu \textit{is\_connected}), přejde do stavu \textit{disconnect}. Každou \textbf{1 sekundu} se server bude snažit spojit s klientem. Pokud se do \textbf{2 minut} klient pod stejným jménem přihlásí, bude vpuštěn do rozehrané hry, ve které byl před tím, než ztratil spojení. Server tomuto klientovy odešle ID hry, počet figurek a jejich pozice, barvu a typ, aby se klient mohl ihned zapojit do hry.
 %% SECTION %%
 \section{Uživatelská dokumentace}
 \label{Uživatelská_dokumentace}
