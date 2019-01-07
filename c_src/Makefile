@@ -2,7 +2,7 @@ CC = gcc
 BIN = server.exe
 OBJ = client.o conditions.o game.o server.o
 
-all: $(BIN) move clean
+all: $(BIN) move
 
 $(BIN): $(OBJ)
 	$(CC) $^ -o $@ -lpthread
@@ -12,6 +12,4 @@ $(BIN): $(OBJ)
 
 move: 
 	mv server.exe ../
-
-clean:	
-	rm -f *.o
+	mv *.o ../c_bin/
